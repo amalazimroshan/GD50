@@ -20,6 +20,7 @@ function love.load()
     --     vsync = true
     -- })
     love.graphics.setDefaultFilter('nearest','nearest')
+    love.window.setTitle('Pong')
     smallFont = love.graphics.newFont('font.ttf', 8)
     scoreFont = love.graphics.newFont('font.ttf', 32)
     push:setupScreen(VIRTUAL_WIDTH,VIRTUAL_HEIGHT,WINDOW_WIDTH,WINDOW_HEIGHT,{
@@ -48,6 +49,40 @@ function love.load()
 end
 
 function love.update(dt)
+
+    if gameState == "play" then
+        if ball:collides(player1) then
+            ball.dx = -ball.dx * 1.03
+            ball.x = player1.x + 5
+
+            if ball.dy < 0 then
+                ball.dy = -math.random(10,150)
+            else
+                ball.dy = math.random(10,150)
+            end
+        end
+        if ball:collides(player2) then
+            ball.dx = -ball.dx * 1.03
+            ball.x = player2.x - 4
+            
+            if ball.dy < 0 then
+                ball.dy = -math.random(10,150)
+            else
+                ball.dy = math.random(10,150)
+            end
+        end
+
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
+
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.y = VIRTUAL_HEIGHT - 4
+            ball.dy = -ball.dy
+        end
+    end
+
     if love.keyboard.isDown('w') then
         player1.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('s') then
@@ -103,5 +138,16 @@ function love.draw()
 
     ball:render()
     
+    displayFPS()
+    displayBallSpeed()
     push:apply('end')
+end
+
+function displayBallSpeed()
+    love.graphics.print("speed: ".. tostring(ball.dx))
+end
+function displayFPS()
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(0,255/255,0,255/255)
+    love.graphics.print("FPS: ".. tostring(love.timer.getFPS()),10,10)
 end
